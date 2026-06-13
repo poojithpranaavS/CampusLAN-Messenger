@@ -1,68 +1,142 @@
-# CampusLAN Messenger
+## 📌 Project Overview
 
-CampusLAN Messenger is an offline LAN-based chat application developed using Flask, SQLite, HTML, CSS, and JavaScript. It enables multiple users connected to the same local network (Wi-Fi, hotspot, or campus network) to communicate in real time without requiring an internet connection.
+Campus LAN Messenger is a lightweight chat platform designed for campus environments where users can join a common chat room and exchange messages in real time without an internet connection or a cellular data.
 
-## Features 
-- Real-time messaging across LAN 
-- Multi-user chat support
-- User login system
-- Online users panel
-- Message history storage using SQLite
-- Mobile and desktop compatibility
-- JWT Authentication
-- Protected Chat Routes
-- Session-Based Token Validation
-- Secure User Access Control
-- Session management
-- Logout functionality
-- Works without internet access
+The application uses JWT-based authentication to secure API endpoints and Neon PostgreSQL for persistent cloud-based message storage.
 
-## Technologies Used
-- Python
-- Flask
-- SQLite
-- HTML5
-- CSS3
-- JavaScript
+## ✨ Features
+🔐 JWT Authentication
+- Secure token-based authentication
+- Protected API endpoints
+- User verification before accessing chat services
+💬 Real-Time Chat
+- Send and receive messages instantly
+- Auto-refresh message updates
+- Common chat room for all users
+👥 User Management
+- Join using a username
+- Online users list
+- Join/leave system notifications
+🗄 Persistent Cloud Storage
+- Messages stored in Neon PostgreSQL
+- Data persists across refreshes and deployments
+- Cloud-hosted database integration
+🌐 Cloud Deployment
+- Hosted on Vercel
+- Accessible from anywhere
+- Automatic deployment through GitHub
 
-## Project Structure
+## 🛠 Tech Stack
+- Technology	Purpose
+- Flask	Backend Framework
+- HTML	Structure
+- CSS	Styling
+- JavaScript	Frontend Functionality
+- JWT	Authentication
+- PostgreSQL	Database
+- Neon	Cloud Database Provider
+- Vercel	Deployment Platform
+- Git & GitHub	Version Control
 
-```text
+## 📂 Project Structure
 CampusLAN-Messenger/
 │
-├── app.py
-├── chat.db
+├── static/
+│   ├── chat.js
+│   ├── style.css
+│   └── login.css
 │
 ├── templates/
 │   ├── login.html
 │   └── chat.html
 │
-├── static/
-│   ├── style.css
-│   └── chat.js
-│
-└── README.md
-```
+├── app.py
+├── requirements.txt
+├── vercel.json
+├── README.md
+└── .env.local
 
-# Installation
-  Clone the repository:
-    git clone https://github.com/poojithpranaavS/CampusLAN-Messenger.git
-    cd CampusLAN-Messenger
-  
-  Install Flask:
-    pip install flask
+## 🔑 Authentication Flow
+- User enters a username.
+- Flask generates a JWT token.
+- Token is stored in the session.
+- Protected routes verify the JWT.
+- Authorized users can send and receive messages.
 
-  Run the application:
+## 🗃 Database Schema
+  # Users Table
+     CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(100) UNIQUE
+   );
+  # Messages Table 
+     CREATE TABLE messages (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(100),
+    message TEXT,
+    timestamp VARCHAR(20)
+   );
+
+## ⚙ Installation & Setup
+   # Clone Repository
+     git clone https://github.com/poojithpranaavS/CampusLAN-Messenger.git
+     cd CampusLAN-Messenger
+   # Create Virtual Environment
+     python -m venv venv
+ # Activate Environment
+   # Windows:
+     venv\Scripts\activate
+   # Linux / Mac:
+     source venv/bin/activate
+ # Install Dependencies
+    pip install -r requirements.txt
+
+## 🔧 Environment Variables
+  Create a file named:
+     .env.local
+  Add:
+     DATABASE_URL=YOUR_NEON_DATABASE_URL
+
+## ▶ Running Locally
     python app.py
+   Open:
+     http://127.0.0.1:5000
 
-  The application will start on:
-    http://127.0.0.1:5000
+## ☁ Deployment
+ # Backend Hosting
+   * Vercel
+ # Database
+   * Neon PostgreSQL
+ # Deployment Workflow
+       GitHub
+         ↓
+       Vercel
+         ↓
+     Neon PostgreSQL
 
-# LAN Access
+## 🔒 Security Features
+- JWT Authentication
+- Protected API Routes
+- Secure Session Handling
+- Environment Variable Configuration
+- Rotated Database Credentials
+- Cloud Database Security
 
-To access the messenger from other devices connected to the same network:
- 1. Find the host system's IP address.
- 2. Run the Flask server.
- 3. Open the following URL on another device:
-      http://YOUR_LOCAL_IP:5000
-    
+## 🎯 Future Enhancements
+- Private Messaging
+- Group Chats
+- File Sharing
+- Message Reactions
+- User Profiles
+- WebSocket-based Real-Time Communication
+- End-to-End Encryption
+
+## 👨‍💻 Developer
+
+ # Poojith Pranaav
+
+ # Campus LAN Messenger – Secure Cloud-Based Chat Application
+
+## 📜 License
+
+  # This project is developed for educational and academic purposes.
