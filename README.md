@@ -21,17 +21,23 @@ CSS3
 JavaScript
 
 ## Project Structure
+
+```text
 CampusLAN-Messenger/
 │
 ├── app.py
 ├── chat.db
+│
 ├── templates/
 │   ├── login.html
 │   └── chat.html
+│
 ├── static/
 │   ├── style.css
 │   └── chat.js
+│
 └── README.md
+```
 
 # Installation
   Clone the repository:
