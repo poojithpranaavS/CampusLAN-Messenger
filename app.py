@@ -1,14 +1,21 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
-import sqlite3
+import os
 import jwt
+import psycopg2
 
+from dotenv import load_dotenv
 from functools import wraps
 from datetime import datetime
+
+load_dotenv(".env.local")
 
 app = Flask(__name__)
 app.secret_key = "offline_chat_secret"
 
 JWT_SECRET = "campuslan_jwt_secret"
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+print("DATABASE_URL =", DATABASE_URL)
 
 
 # =========================
@@ -65,30 +72,27 @@ def token_required(f):
 
 def init_db():
 
-    conn = sqlite3.connect("chat.db")
+    conn = psycopg2.connect(DATABASE_URL)
     c = conn.cursor()
 
     c.execute("""
-    CREATE TABLE IF NOT EXISTS messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT,
-        message TEXT,
-        timestamp TEXT
+    CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(100) UNIQUE
     )
     """)
 
     c.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE
+    CREATE TABLE IF NOT EXISTS messages (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(100),
+        message TEXT,
+        timestamp VARCHAR(20)
     )
     """)
 
     conn.commit()
     conn.close()
-
-
-init_db()
 
 
 # =========================
@@ -112,22 +116,26 @@ def join():
     if username == "":
         return redirect("/")
 
-    conn = sqlite3.connect("chat.db")
+    conn = psycopg2.connect(DATABASE_URL)
     c = conn.cursor()
 
     c.execute(
-        "INSERT OR IGNORE INTO users(username) VALUES(?)",
-        (username,)
-    )
+       """
+       INSERT INTO users(username)
+       VALUES(%s)
+       ON CONFLICT (username) DO NOTHING
+       """,
+       (username,)
+    ) 
 
     c.execute("""
-        INSERT INTO messages
-        (username, message, timestamp)
-        VALUES (?, ?, ?)
+      INSERT INTO messages
+      (username, message, timestamp)
+      VALUES (%s, %s, %s)
     """, (
-        "SYSTEM",
-        f"{username} joined the chat",
-        datetime.now().strftime("%H:%M:%S")
+      "SYSTEM",
+      f"{username} joined the chat",
+      datetime.now().strftime("%H:%M:%S")
     ))
 
     conn.commit()
@@ -169,17 +177,17 @@ def logout():
 
         username = session["username"]
 
-        conn = sqlite3.connect("chat.db")
+        conn = psycopg2.connect(DATABASE_URL)
         c = conn.cursor()
 
         c.execute("""
-            INSERT INTO messages
-            (username, message, timestamp)
-            VALUES (?, ?, ?)
+           INSERT INTO messages
+           (username, message, timestamp)
+           VALUES (%s, %s, %s)
         """, (
-            "SYSTEM",
-            f"{username} left the chat",
-            datetime.now().strftime("%H:%M:%S")
+           "SYSTEM",
+          f"{username} left the chat",
+          datetime.now().strftime("%H:%M:%S")
         ))
 
         conn.commit()
@@ -202,17 +210,17 @@ def send():
 
     data = request.json
 
-    conn = sqlite3.connect("chat.db")
+    conn = psycopg2.connect(DATABASE_URL)
     c = conn.cursor()
 
     c.execute("""
-        INSERT INTO messages
-        (username, message, timestamp)
-        VALUES (?, ?, ?)
+       INSERT INTO messages
+       (username, message, timestamp)
+       VALUES (%s, %s, %s)
     """, (
-        username,
-        data["message"],
-        datetime.now().strftime("%H:%M:%S")
+       username,
+       data["message"],
+       datetime.now().strftime("%H:%M:%S")
     ))
 
     conn.commit()
@@ -231,7 +239,7 @@ def send():
 @token_required
 def messages():
 
-    conn = sqlite3.connect("chat.db")
+    conn = psycopg2.connect(DATABASE_URL)
     c = conn.cursor()
 
     c.execute("""
@@ -255,7 +263,7 @@ def messages():
 @token_required
 def users():
 
-    conn = sqlite3.connect("chat.db")
+    conn = psycopg2.connect(DATABASE_URL)
     c = conn.cursor()
 
     c.execute("""
@@ -279,7 +287,7 @@ def users():
 @app.route("/clear")
 def clear_chat():
 
-    conn = sqlite3.connect("chat.db")
+    conn = psycopg2.connect(DATABASE_URL)
     c = conn.cursor()
 
     c.execute("DELETE FROM messages")
