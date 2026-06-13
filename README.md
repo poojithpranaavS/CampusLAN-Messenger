@@ -39,22 +39,24 @@ The application uses JWT-based authentication to secure API endpoints and Neon P
 - Git & GitHub	Version Control
 
 ## 📂 Project Structure
+
+```text
 CampusLAN-Messenger/
-│
-├── static/
-│   ├── chat.js
-│   ├── style.css
-│   └── login.css
-│
-├── templates/
-│   ├── login.html
-│   └── chat.html
 │
 ├── app.py
 ├── requirements.txt
 ├── vercel.json
 ├── README.md
-└── .env.local
+│
+├── templates/
+│   ├── login.html
+│   └── chat.html
+│
+├── static/
+│   ├── style.css
+│   ├── login.css
+│   └── chat.js
+```
 
 ## 🔑 Authentication Flow
 - User enters a username.
