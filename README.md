@@ -3,22 +3,27 @@
 CampusLAN Messenger is an offline LAN-based chat application developed using Flask, SQLite, HTML, CSS, and JavaScript. It enables multiple users connected to the same local network (Wi-Fi, hotspot, or campus network) to communicate in real time without requiring an internet connection.
 
 ## Features 
-Real-time messaging across LAN 
-Multi-user chat support
-User login system
-Online users panel
-Message history storage using SQLite
-Mobile and desktop compatibility
-Session management
-Logout functionality
-Works without internet access
-Technologies Used
-Python
-Flask
-SQLite
-HTML5
-CSS3
-JavaScript
+- Real-time messaging across LAN 
+- Multi-user chat support
+- User login system
+- Online users panel
+- Message history storage using SQLite
+- Mobile and desktop compatibility
+- JWT Authentication
+- Protected Chat Routes
+- Session-Based Token Validation
+- Secure User Access Control
+- Session management
+- Logout functionality
+- Works without internet access
+
+## Technologies Used
+- Python
+- Flask
+- SQLite
+- HTML5
+- CSS3
+- JavaScript
 
 ## Project Structure
 
