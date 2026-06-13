@@ -1,6 +1,7 @@
 async function loadMessages() {
 
     let response = await fetch("/messages");
+
     let data = await response.json();
 
     let box = document.getElementById("messages");
@@ -10,10 +11,14 @@ async function loadMessages() {
     box.innerHTML = "";
 
     const currentUser =
-    document.querySelector(".header").innerText
-    .replace("Welcome, ", "")
-    .replace("Logout", "")
-    .trim();
+        document.querySelector(".header").innerText
+        .replace("Welcome, ", "")
+        .trim();
+
+    if (!Array.isArray(data)) {
+        console.error("Messages Error:", data);
+        return;
+    }
 
     data.forEach(msg => {
 
@@ -50,11 +55,13 @@ async function sendMessage() {
 
     let input = document.getElementById("messageInput");
 
+    if (!input) return;
+
     let text = input.value.trim();
 
     if (text === "") return;
 
-    await fetch("/send", {
+    let response = await fetch("/send", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -63,6 +70,13 @@ async function sendMessage() {
             message: text
         })
     });
+
+    let result = await response.json();
+
+    if (result.error) {
+        console.error(result.error);
+        return;
+    }
 
     input.value = "";
 
@@ -73,6 +87,7 @@ async function sendMessage() {
 async function loadUsers() {
 
     let response = await fetch("/users");
+
     let users = await response.json();
 
     let box = document.getElementById("usersList");
@@ -80,6 +95,11 @@ async function loadUsers() {
     if (!box) return;
 
     box.innerHTML = "";
+
+    if (!Array.isArray(users)) {
+        console.error("Users Error:", users);
+        return;
+    }
 
     let countElement = document.getElementById("userCount");
 
@@ -103,13 +123,19 @@ async function loadUsers() {
 }
 
 
-document.getElementById("messageInput").addEventListener("keypress", function(e) {
+const messageInput = document.getElementById("messageInput");
 
-    if (e.key === "Enter") {
-        sendMessage();
-    }
+if (messageInput) {
 
-});
+    messageInput.addEventListener("keypress", function(e) {
+
+        if (e.key === "Enter") {
+            sendMessage();
+        }
+
+    });
+
+}
 
 
 setInterval(loadMessages, 1000);

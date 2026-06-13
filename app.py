@@ -1,9 +1,62 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
 import sqlite3
+import jwt
+
+from functools import wraps
 from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "offline_chat_secret"
+
+JWT_SECRET = "campuslan_jwt_secret"
+
+
+# =========================
+# JWT HELPERS
+# =========================
+
+def create_token(username):
+
+    return jwt.encode(
+        {
+            "username": username
+        },
+        JWT_SECRET,
+        algorithm="HS256"
+    )
+
+
+def token_required(f):
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+
+        token = session.get("token")
+
+        if not token:
+            return jsonify({
+                "error": "Token missing"
+            }), 401
+
+        try:
+
+            data = jwt.decode(
+                token,
+                JWT_SECRET,
+                algorithms=["HS256"]
+            )
+
+            request.username = data["username"]
+
+        except Exception as e:
+
+            return jsonify({
+                "error": str(e)
+            }), 401
+
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 # =========================
@@ -82,6 +135,9 @@ def join():
 
     session["username"] = username
 
+    token = create_token(username)
+    session["token"] = token
+
     return redirect("/chat")
 
 
@@ -97,7 +153,8 @@ def chat():
 
     return render_template(
         "chat.html",
-        username=session["username"]
+        username=session["username"],
+        token=session["token"]
     )
 
 
@@ -138,10 +195,10 @@ def logout():
 # =========================
 
 @app.route("/send", methods=["POST"])
+@token_required
 def send():
 
-    if "username" not in session:
-        return jsonify({"error": "Unauthorized"})
+    username = request.username
 
     data = request.json
 
@@ -153,7 +210,7 @@ def send():
         (username, message, timestamp)
         VALUES (?, ?, ?)
     """, (
-        session["username"],
+        username,
         data["message"],
         datetime.now().strftime("%H:%M:%S")
     ))
@@ -161,7 +218,9 @@ def send():
     conn.commit()
     conn.close()
 
-    return jsonify({"status": "success"})
+    return jsonify({
+        "status": "success"
+    })
 
 
 # =========================
@@ -169,6 +228,7 @@ def send():
 # =========================
 
 @app.route("/messages")
+@token_required
 def messages():
 
     conn = sqlite3.connect("chat.db")
@@ -192,6 +252,7 @@ def messages():
 # =========================
 
 @app.route("/users")
+@token_required
 def users():
 
     conn = sqlite3.connect("chat.db")
@@ -212,7 +273,7 @@ def users():
 
 
 # =========================
-# CLEAR CHAT (OPTIONAL)
+# CLEAR CHAT
 # =========================
 
 @app.route("/clear")
